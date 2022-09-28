@@ -1,24 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from 'app/store';
+import { IBox } from 'assets/ts/interfaces';
+import { v4 as uuidv4 } from 'uuid'
 
-export interface IBoxState {
-  id: string,
-  name: string,
-  boxes?: IBoxState[],
-}
 
-const initialState: IBoxState[] = [
-  {
-    id: "Test",
-    name: "Test",
-    boxes: [
-      {
-        id: "Test2",
-        name: "Test2",
-      },
-    ]
-  },
-];
+const initialState: IBox[] = [];
 
 export const boxSlice = createSlice({
   name: 'box',
@@ -26,14 +12,32 @@ export const boxSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     // Use the PayloadAction type to declare the contents of `action.payload`
-    generateBoxes: (state, action: PayloadAction<{nbOfBoxes: number, boxInBox: number}>) => {
-      const nbOfBoxes = action.payload.nbOfBoxes;
-      const boxInBox = action.payload.boxInBox;
+    generateBoxes: (state, action: PayloadAction<{nbOfBoxes: any, boxInBox: any}>) => {
+      const nbOfBoxes = parseInt(action.payload.nbOfBoxes);
+      const boxInBox = parseInt(action.payload.boxInBox);
+      const boxes: IBox[] = [];
       if (nbOfBoxes && boxInBox) {
-        Array().fill(nbOfBoxes).map((_, i) => i + 1).forEach((item) => {
-          
-        })
+        Array(nbOfBoxes).fill(0).map((_, i) => i + 1).forEach((nb) => {
+          console.log("object", nb);
+          boxes.push({
+            id: uuidv4(),
+            name: "",
+            boxThree: [...Array(boxInBox).fill(0).map((_, i) => i + 1).map((nb2) => {
+              return ({
+                id: uuidv4(),
+                name: "",
+              })
+            })]
+          })
+        });
       }
+      return [...state, ...boxes]
+    },
+    createNewBox(state, action: PayloadAction<{targetId: string}>) {
+      // const targetNode = "";
+    },
+    resetBoxes(state) {
+      return [];
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -43,7 +47,7 @@ export const boxSlice = createSlice({
   },
 });
 
-export const { generateBoxes } = boxSlice.actions;
+export const { generateBoxes, resetBoxes } = boxSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

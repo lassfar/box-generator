@@ -1,20 +1,22 @@
 import React, { ReactNode } from "react";
+import { EButtonVariant } from "assets/ts/enums";
 
 interface IButtonProps {
-  customclass: string,
+  variant?: EButtonVariant,
+  customclass?: string,
   children: ReactNode,
   [key: string | number | symbol]: any;
 }
 
 const Button: React.FC<IButtonProps> = ({
-  customclass,
+  variant,
   children,
+  customclass,
   ...otherProps
 }) => {
   return (
     <button
-      type="button"
-      className={`py-2 px-3 rounded-lg ${customclass}`}
+      className={`${variant} py-1.5 px-3 rounded-lg ${customclass}`}
       {...otherProps}
     >
       {children}
@@ -23,3 +25,8 @@ const Button: React.FC<IButtonProps> = ({
 };
 
 export default Button;
+
+Button.defaultProps = {
+  variant: EButtonVariant.primary,
+  customclass: "",
+}
