@@ -1,10 +1,75 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState, AppThunk } from 'app/store';
-import { IBox } from 'assets/ts/interfaces';
+import { IBox, IBoxThree } from 'assets/ts/interfaces';
 import { v4 as uuidv4 } from 'uuid'
 
+export interface IBoxState {
+  boxes: IBox[],
+  boxThree: IBoxThree[]
+}
 
-const initialState: IBox[] = [];
+const initialState: IBoxState = {
+  boxes: [
+    {
+      id: 1,
+      name: "BOX 1",
+    },
+    {
+      id: 2,
+      name: "BOX 2",
+    },
+    {
+      id: 3,
+      name: "BOX 3",
+    },
+    {
+      id: 4,
+      name: "BOX 4",
+    },
+    {
+      id: 5,
+      name: "BOX 5",
+    },
+  ],
+  boxThree: [
+    {
+      boxId: 1,
+      hasParent: false,
+      childBoxIndexes: [
+        1, 4
+      ],
+    },
+    {
+      boxId: 2,
+      hasParent: true,
+      childBoxIndexes: [
+        2
+      ],
+    },
+    {
+      boxId: 3,
+      hasParent: true,
+      childBoxIndexes: [
+        3,
+      ],
+    },
+    {
+      boxId: 4,
+      hasParent: true,
+      childBoxIndexes: [],
+    },
+    {
+      boxId: 5,
+      hasParent: true,
+      childBoxIndexes: [],
+    }
+  ]
+}
+
+// const initialState: IBoxState = {
+//   boxes: [],
+//   boxThree: [],
+// }
 
 export const boxSlice = createSlice({
   name: 'box',
@@ -15,29 +80,66 @@ export const boxSlice = createSlice({
     generateBoxes: (state, action: PayloadAction<{nbOfBoxes: any, boxInBox: any}>) => {
       const nbOfBoxes = parseInt(action.payload.nbOfBoxes);
       const boxInBox = parseInt(action.payload.boxInBox);
-      const boxes: IBox[] = [];
-      if (nbOfBoxes && boxInBox) {
-        Array(nbOfBoxes).fill(0).map((_, i) => i + 1).forEach((nb) => {
-          console.log("object", nb);
-          boxes.push({
-            id: uuidv4(),
-            name: "",
-            boxThree: [...Array(boxInBox).fill(0).map((_, i) => i + 1).map((nb2) => {
-              return ({
-                id: uuidv4(),
-                name: "",
-              })
-            })]
-          })
-        });
-      }
-      return [...state, ...boxes]
+
     },
-    createNewBox(state, action: PayloadAction<{targetId: string}>) {
-      // const targetNode = "";
+    createNewBox(state, action: PayloadAction<{box: IBox, targetParentBoxId?: number, childBoxIndex?: number}>) {
+      // get payload values
+      const targetParentBoxId = action.payload.targetParentBoxId;
+      const childBoxIndex = action.payload.childBoxIndex;
+      // debugger
+      const targetBox: IBoxThree = state.boxThree.find((item) => item.boxId == targetParentBoxId) as IBoxThree
+      const parentIndex = state.boxThree.findIndex(item => item.boxId == targetParentBoxId)
+
+      // debugger
+      if (targetBox && parentIndex >= 0 && typeof childBoxIndex == "number" && childBoxIndex >= 0) {
+        return {
+          ...state,
+          boxes: [...state.boxes, action.payload.box],
+          boxThree: [
+            ...state.boxThree.filter(item => item.boxId != targetParentBoxId), // 1__ filter to remove the old the box that will be updated then
+            { // + __2 update old parent box and set children box indexes
+              boxId: targetBox.boxId,
+              hasParent: targetBox.hasParent,
+              childBoxIndexes: [
+                ...targetBox.childBoxIndexes, childBoxIndex
+              ]
+            },
+            { // add the new inserted box
+              boxId: action.payload.box.id,
+              hasParent: Boolean(targetBox),
+              childBoxIndexes: []
+            },
+          ],
+        }
+      }
+      return {
+        boxes: [...state.boxes, action.payload.box],
+        boxThree: [
+          ...state.boxThree,
+          {
+            boxId: action.payload.box.id,
+            hasParent: Boolean(targetBox),
+            childBoxIndexes: []
+          },
+        ],
+      }
+    },
+    removeBox(state, action: PayloadAction<{boxId: string | number}>) {
+      const boxId = action.payload.boxId;
+      return {
+        ...state,
+        boxes: [
+          // remove box by id
+          ...state.boxes.filter(item => item.id != boxId),
+        ],
+        boxThree: [
+          // remove boxThree by id
+          ...state.boxThree.filter(item => item.boxId != boxId),
+        ],
+      }
     },
     resetBoxes(state) {
-      return [];
+      return initialState
     },
   },
   // The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -47,7 +149,12 @@ export const boxSlice = createSlice({
   },
 });
 
-export const { generateBoxes, resetBoxes } = boxSlice.actions;
+export const {
+  createNewBox,
+  generateBoxes,
+  resetBoxes,
+  removeBox,
+} = boxSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

@@ -1,19 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import BoxGeneratorForm from 'components/Box/BoxGeneratorForm'
-import Box from 'components/Box'
-import { useAppSelector } from 'app/store/hooks';
-import { selectBoxes } from 'app/store/slices/boxSlice';
+import BoxList from 'components/Box/BoxList';
 
 const Home: React.FC = () => {
-
-  const boxList = useAppSelector(selectBoxes)
 
   return (
     <>
       <BoxGeneratorForm />
-      {boxList?.map((box) => (
-        <Box box={box} key={box.id} />
-      ))}
+      <BoxList />
     </>
   )
 }
