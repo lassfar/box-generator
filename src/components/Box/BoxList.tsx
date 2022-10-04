@@ -14,8 +14,8 @@ const BoxList = () => {
       <BoxCreator />
 
       {/* map over boxes */}
-      {boxesData?.boxes?.length && boxesData?.boxThree?.map((three: IBoxThree, threeIndex: number) => {
-        if (!three?.hasParent && boxesData.boxThree[threeIndex]) {
+      {boxesData?.boxes?.length ? boxesData?.boxThree?.map((three: IBoxThree, threeIndex: number) => {
+        if (!three?.hasParent) {
           return (
             <Box
               boxThree={boxesData.boxThree[threeIndex]}
@@ -24,7 +24,7 @@ const BoxList = () => {
             />
           )
         }
-      })}
+      }) : "No Box"}
 
     </>
   );

@@ -36,7 +36,7 @@ const Box: React.FC<IBoxProps> = ({ box, boxThree }) => {
     setBox({ ...myBox, [name]: value });
   };
 
-  if (box && boxThree) {
+  if (box) {
     return (
       <div className="flex flex-wrap shadow py-6 px-5 rounded-xl mx-auto w-full mb-3">
         {/* box header */}
@@ -69,7 +69,7 @@ const Box: React.FC<IBoxProps> = ({ box, boxThree }) => {
           </div>
         </div>
         {/* INNER BOXES THREES */}
-        {boxThree?.childBoxIndexes?.length && boxThree.childBoxIndexes.map((childIndex, idx) => (
+        {boxThree?.childBoxIndexes?.map((childIndex, idx) => (
           <Box
             boxThree={boxesData.boxThree[childIndex]}
             box={boxesData.boxes[childIndex]}
@@ -78,11 +78,8 @@ const Box: React.FC<IBoxProps> = ({ box, boxThree }) => {
         ))}
       </div>
     );
-  } else {
-    return (
-      <p className="text-indigo-600">No box</p>
-    )
   }
+  return <>{"No box found"}</>
 };
 
 export default Box;
